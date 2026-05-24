@@ -1,0 +1,9 @@
+bs4
+streamlit
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pandas
+numpy
+Flask

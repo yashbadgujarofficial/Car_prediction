@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Price Prediction - Prediction Form</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            /* Try local AI-generated image first, then fall back to an Unsplash car showroom image */
+            background-image: url('/static/images/ml_car_bg.png'), url('https://images.unsplash.com/photo-1549924231-f129b911e442?q=80&w=1920&auto=format&fit=crop&ixlib=rb-4.0.3&s=9f8a8f2f7b6f9b5a6d8c2b9c9f1e6a3b');
+            background-size: cover, cover;
+            background-position: center center, center center;
+            background-attachment: fixed, fixed;
+            background-repeat: no-repeat, no-repeat;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        /* Premium overlay effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 15% 30%, rgba(100, 200, 255, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 70%, rgba(50, 100, 150, 0.06) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 700px;
+            width: 100%;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: slideDown 0.8s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            color: #ffffff;
+            margin-bottom: 10px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            text-shadow: 0 4px 15px rgba(100, 200, 255, 0.2);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #b0d4ff;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+
+        .form-card {
+            background: rgba(20, 24, 41, 0.9);
+            border-radius: 25px;
+            padding: 50px 40px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6), 0 0 50px rgba(100, 200, 255, 0.1);
+            border: 1px solid rgba(100, 200, 255, 0.15);
+            backdrop-filter: blur(20px);
+            animation: slideUp 0.8s ease;
+            position: relative;
+        }
+
+        .form-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #64c8ff, transparent);
+            border-radius: 25px 25px 0 0;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+            animation: fadeIn 0.8s ease forwards;
+            opacity: 0;
+        }
+
+        .form-group:nth-child(1) { animation-delay: 0.1s; }
+        .form-group:nth-child(2) { animation-delay: 0.2s; }
+        .form-group:nth-child(3) { animation-delay: 0.3s; }
+        .form-group:nth-child(4) { animation-delay: 0.4s; }
+        .form-group:nth-child(5) { animation-delay: 0.5s; }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        label {
+            display: block;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #e0f0ff;
+            margin-bottom: 10px;
+            letter-spacing: 0.3px;
+        }
+
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid rgba(100, 200, 255, 0.2);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        input[type="number"]::placeholder,
+        select::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #64c8ff;
+            background: rgba(100, 200, 255, 0.08);
+            box-shadow: 0 0 15px rgba(100, 200, 255, 0.2);
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364c8ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 20px;
+            padding-right: 40px;
+        }
+
+        select option {
+            background: #1a1f3a;
+            color: #ffffff;
+            padding: 10px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            margin-top: 30px;
+            background: linear-gradient(135deg, #64c8ff 0%, #3a8fd9 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 10px 30px rgba(100, 200, 255, 0.3);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(100, 200, 255, 0.5);
+            background: linear-gradient(135deg, #3a8fd9 0%, #64c8ff 100%);
+        }
+
+        .submit-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .submit-btn:active {
+            transform: translateY(-1px);
+        }
+
+        /* Result Section */
+        .result-section {
+            margin-top: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(56, 142, 60, 0.1) 100%);
+            border: 2px solid rgba(76, 175, 80, 0.3);
+            border-radius: 15px;
+            display: none;
+            text-align: center;
+            animation: slideIn 0.6s ease;
+        }
+
+        .result-section.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-section h2 {
+            color: #b0d4ff;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .predicted-price {
+            font-size: 3rem;
+            color: #4caf50;
+            font-weight: 800;
+            text-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+            letter-spacing: -1px;
+        }
+
+        .predicted-price span {
+            font-size: 2rem;
+            margin-right: 5px;
+        }
+
+        /* Error Message */
+        .error-message {
+            color: #ff6b6b;
+            font-size: 0.95rem;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .form-group.error input,
+        .form-group.error select {
+            border-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.08);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            color: #7a8fa8;
+            font-size: 0.9rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.2rem;
+            }
+
+            .header p {
+                font-size: 1rem;
+            }
+
+            .form-card {
+                padding: 35px 25px;
+                border-radius: 20px;
+            }
+
+            label {
+                font-size: 0.95rem;
+            }
+
+            input[type="number"],
+            select {
+                padding: 12px 14px;
+                font-size: 0.95rem;
+            }
+
+            .submit-btn {
+                padding: 14px;
+                font-size: 1rem;
+            }
+
+            .predicted-price {
+                font-size: 2.5rem;
+            }
+
+            .predicted-price span {
+                font-size: 1.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 20px 15px;
+            }
+
+            .header {
+                margin-bottom: 35px;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .header p {
+                font-size: 0.95rem;
+            }
+
+            .form-card {
+                padding: 25px 18px;
+                border-radius: 15px;
+                box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+            }
+
+            .form-group {
+                margin-bottom: 20px;
+            }
+
+            label {
+                font-size: 0.9rem;
+                margin-bottom: 8px;
+            }
+
+            input[type="number"],
+            select {
+                padding: 11px 12px;
+                font-size: 0.9rem;
+                border-radius: 10px;
+            }
+
+            .submit-btn {
+                padding: 12px;
+                font-size: 0.95rem;
+                margin-top: 25px;
+            }
+
+            .result-section {
+                padding: 20px;
+                border-radius: 12px;
+                margin-top: 30px;
+            }
+
+            .predicted-price {
+                font-size: 2rem;
+            }
+
+            .predicted-price span {
+                font-size: 1.4rem;
+            }
+
+            footer {
+                margin-top: 40px;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚗 Car Price Predictor</h1>
+            <p>Fill in your car details below</p>
+        </div>
+
+        <div class="form-card">
+            <form id="predictionForm" method="POST" action="/predict">
+                <!-- Car Model -->
+                <div class="form-group">
+                    <label for="model">Car Model <span style="color: #ff6b6b;">*</span></label>
+                    <select id="model" name="model" required>
+                        <option value="">-- Select Car Model --</option>
+                        {% for model in car_models %}
+                        <option value="{{ model }}">{{ model }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="error-message" id="modelError">Please select a car model</div>
+                </div>
+
+                <!-- Year -->
+                <div class="form-group">
+                    <label for="year">Manufacturing Year <span style="color: #ff6b6b;">*</span></label>
+                    <input type="number" id="year" name="year" placeholder="Enter manufacturing year" 
+                           min="1990" max="2025" required>
+                    <div class="error-message" id="yearError">Please enter a valid year between 1990 and 2025</div>
+                </div>
+
+                <!-- Fuel Type -->
+                <div class="form-group">
+                    <label for="fuel_type">Fuel Type <span style="color: #ff6b6b;">*</span></label>
+                    <select id="fuel_type" name="fuel_type" required>
+                        <option value="">-- Select Fuel Type --</option>
+                        <option value="Petrol">Petrol</option>
+                        <option value="Diesel">Diesel</option>
+                        <option value="CNG">CNG</option>
+                        <option value="LPG">LPG</option>
+                        <option value="Electric">Electric</option>
+                    </select>
+                    <div class="error-message" id="fuelError">Please select a fuel type</div>
+                </div>
+
+                <!-- Kilometers Driven -->
+                <div class="form-group">
+                    <label for="kilometers">Kilometers Driven <span style="color: #ff6b6b;">*</span></label>
+                    <input type="number" id="kilometers" name="kilometers" placeholder="Enter km driven" 
+                           min="0" max="5000000" required>
+                    <div class="error-message" id="kmError">Please enter valid kilometers (0 - 5,000,000)</div>
+                </div>
+
+                <!-- Seller Type -->
+                <div class="form-group">
+                    <label for="seller_type">Seller Type <span style="color: #ff6b6b;">*</span></label>
+                    <select id="seller_type" name="seller_type" required>
+                        <option value="">-- Select Seller Type --</option>
+                        <option value="Individual">Individual</option>
+                        <option value="Dealer">Dealer</option>
+                        <option value="Trustmark Dealer">Trustmark Dealer</option>
+                    </select>
+                    <div class="error-message" id="sellerError">Please select a seller type</div>
+                </div>
+
+                <!-- Transmission Type -->
+                <div class="form-group">
+                    <label for="transmission_type">Transmission Type <span style="color: #ff6b6b;">*</span></label>
+                    <select id="transmission_type" name="transmission_type" required>
+                        <option value="">-- Select Transmission --</option>
+                        <option value="Manual">Manual</option>
+                        <option value="Automatic">Automatic</option>
+                    </select>
+                    <div class="error-message" id="transmissionError">Please select transmission type</div>
+                </div>
+
+                <!-- Mileage -->
+                <div class="form-group">
+                    <label for="mileage">Mileage (km/l) <span style="color: #ff6b6b;">*</span></label>
+                    <input type="number" id="mileage" name="mileage" placeholder="Enter mileage (km/l)" 
+                           min="5" max="50" step="0.1" required>
+                    <div class="error-message" id="mileageError">Please enter valid mileage (5 - 50 km/l)</div>
+                </div>
+
+                <!-- Engine -->
+                <div class="form-group">
+                    <label for="engine">Engine (cc) <span style="color: #ff6b6b;">*</span></label>
+                    <input type="number" id="engine" name="engine" placeholder="Enter engine displacement (cc)" 
+                           min="500" max="10000" required>
+                    <div class="error-message" id="engineError">Please enter valid engine size (500 - 10000 cc)</div>
+                </div>
+
+                <!-- Max Power -->
+                <div class="form-group">
+                    <label for="max_power">Max Power (bhp) <span style="color: #ff6b6b;">*</span></label>
+                    <input type="number" id="max_power" name="max_power" placeholder="Enter max power (bhp)" 
+                           min="20" max="500" step="0.1" required>
+                    <div class="error-message" id="powerError">Please enter valid max power (20 - 500 bhp)</div>
+                </div>
+
+                <!-- Seats -->
+                <div class="form-group">
+                    <label for="seats">Number of Seats <span style="color: #ff6b6b;">*</span></label>
+                    <select id="seats" name="seats" required>
+                        <option value="">-- Select Seats --</option>
+                        <option value="2">2 Seats</option>
+                        <option value="4">4 Seats</option>
+                        <option value="5">5 Seats</option>
+                        <option value="6">6 Seats</option>
+                        <option value="7">7 Seats</option>
+                        <option value="8">8 Seats</option>
+                    </select>
+                    <div class="error-message" id="seatsError">Please select number of seats</div>
+                </div>
+
+                <button type="submit" class="submit-btn">Predict Price</button>
+            </form>
+
+            <!-- Result Section -->
+            <div class="result-section{% if result %} show{% endif %}" id="resultSection">
+                <h2>Estimated Price</h2>
+                <div class="predicted-price">
+                    <span>₹</span><span id="predictionValue">{% if result %}{{ "{:,.0f}".format(result) }}{% else %}0{% endif %}</span>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Built with Flask, Machine Learning & Python</p>
+        </footer>
+    </div>
+
+    <script>
+        // Form validation
+        const form = document.getElementById('predictionForm');
+        const resultSection = document.getElementById('resultSection');
+        const predictionValueEl = document.getElementById('predictionValue');
+
+        // Restore last prediction from localStorage (if any)
+        document.addEventListener('DOMContentLoaded', () => {
+            const last = localStorage.getItem('lastPrediction');
+            if (last) {
+                predictionValueEl.textContent = last;
+                resultSection.classList.add('show');
+            }
+        });
+
+        form.addEventListener('submit', function(e) {
+            // Reset error messages
+            document.querySelectorAll('.form-group').forEach(group => {
+                group.classList.remove('error');
+            });
+            document.querySelectorAll('.error-message').forEach(msg => {
+                msg.classList.remove('show');
+            });
+
+            let isValid = true;
+
+            // Validate model
+            if (!form.model.value) {
+                document.getElementById('model').parentElement.classList.add('error');
+                document.getElementById('modelError').classList.add('show');
+                isValid = false;
+            }
+
+            // Validate year
+            const year = parseInt(form.year.value);
+            if (!form.year.value || year < 1990 || year > 2025) {
+                document.getElementById('year').parentElement.classList.add('error');
+                document.getElementById('yearError').classList.add('show');
+                isValid = false;
+            }
+
+            // Validate fuel type
+            if (!form.fuel_type.value) {
+                document.getElementById('fuel_type').parentElement.classList.add('error');
+                document.getElementById('fuelError').classList.add('show');
+                isValid = false;
+            }
+
+            // Validate kilometers
+            const km = parseInt(form.kilometers.value);
+            if (!form.kilometers.value || km < 0 || km > 5000000) {
+                document.getElementById('kilometers').parentElement.classList.add('error');
+                document.getElementById('kmError').classList.add('show');
+                isValid = false;
+            }
+
+            // Validate seller type
+            if (!form.seller_type.value) {
+                document.getElementById('seller_type').parentElement.classList.add('error');
+                document.getElementById('sellerError').classList.add('show');
+                isValid = false;
+            }
+
+            // Validate transmission type
+            if (!form.transmission_type.value) {
+                document.getElementById('transmission_type').parentElement.classList.add('error');
+                document.getElementById('transmissionError').classList.add('show');
+                isValid = false;
+            }
+
+            // Validate mileage
+            const mileage = parseFloat(form.mileage.value);
+            if (!form.mileage.value || mileage < 5 || mileage > 50) {
+                document.getElementById('mileage').parentElement.classList.add('error');
+                document.getElementById('mileageError').classList.add('show');
+                isValid = false;
+            }
+
+            // Validate engine
+            const engine = parseFloat(form.engine.value);
+            if (!form.engine.value || engine < 500 || engine > 10000) {
+                document.getElementById('engine').parentElement.classList.add('error');
+                document.getElementById('engineError').classList.add('show');
+                isValid = false;
+            }
+
+            // Validate max power
+            const power = parseFloat(form.max_power.value);
+            if (!form.max_power.value || power < 20 || power > 500) {
+                document.getElementById('max_power').parentElement.classList.add('error');
+                document.getElementById('powerError').classList.add('show');
+                isValid = false;
+            }
+
+            // Validate seats
+            if (!form.seats.value) {
+                document.getElementById('seats').parentElement.classList.add('error');
+                document.getElementById('seatsError').classList.add('show');
+                isValid = false;
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+                resultSection.classList.remove('show');
+                return;
+            }
+
+            // Prevent default full page submit and use fetch to keep page state
+            e.preventDefault();
+
+            const formData = new FormData(form);
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data && data.result !== undefined) {
+                    const val = Math.round(data.result);
+                    predictionValueEl.textContent = val.toLocaleString();
+                    // persist last prediction so it survives refresh
+                    localStorage.setItem('lastPrediction', val.toLocaleString());
+                    resultSection.classList.add('show');
+                }
+            })
+            .catch(err => {
+                console.error('Prediction error', err);
+            });
+        });
+
+        // Clear error on input change
+        const inputs = form.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('change', function() {
+                const group = this.parentElement;
+                group.classList.remove('error');
+                group.querySelector('.error-message').classList.remove('show');
+            });
+        });
+    </script>
+</body>
+</html>

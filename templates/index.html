@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Price Prediction - ML Web App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #0f0f1e 100%);
+            background-size: 400% 400%;
+            background-attachment: fixed;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated background overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255, 140, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(220, 20, 60, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+            position: relative;
+            z-index: 2;
+        }
+
+        .card {
+            background: rgba(26, 26, 46, 0.85);
+            border-radius: 25px;
+            padding: 70px 50px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 140, 0, 0.1);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 140, 0, 0.2);
+            animation: slideUp 0.8s ease;
+            position: relative;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #ff8c00, transparent);
+            border-radius: 25px 25px 0 0;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .title {
+            font-size: 3rem;
+            color: #ffffff;
+            margin-bottom: 15px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            text-shadow: 0 4px 20px rgba(255, 140, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            color: #d4d4d4;
+            margin-bottom: 40px;
+            line-height: 1.8;
+            font-weight: 300;
+        }
+
+        .description {
+            background: rgba(255, 140, 0, 0.08);
+            border-left: 4px solid #ff8c00;
+            padding: 20px 25px;
+            margin-bottom: 45px;
+            border-radius: 10px;
+            font-size: 1rem;
+            color: #e0e0e0;
+            line-height: 1.7;
+        }
+
+        .icon {
+            font-size: 4.5rem;
+            margin-bottom: 25px;
+            animation: rotate 4s linear infinite;
+        }
+
+        @keyframes rotate {
+            0%, 100% {
+                transform: rotateY(0deg);
+            }
+            50% {
+                transform: rotateY(180deg);
+            }
+        }
+
+        .button {
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            color: white;
+            border: none;
+            padding: 18px 50px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 15px 40px rgba(255, 140, 0, 0.4);
+            text-decoration: none;
+            display: inline-block;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .button:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 20px 50px rgba(255, 140, 0, 0.6);
+            background: linear-gradient(135deg, #ff6b35 0%, #ff8c00 100%);
+        }
+
+        .button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .button:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        .features {
+            margin-top: 50px;
+            padding-top: 40px;
+            border-top: 1px solid rgba(255, 140, 0, 0.2);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 25px;
+        }
+
+        .feature {
+            padding: 15px;
+            border-radius: 12px;
+            background: rgba(255, 140, 0, 0.05);
+            border: 1px solid rgba(255, 140, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .feature:hover {
+            background: rgba(255, 140, 0, 0.12);
+            border-color: rgba(255, 140, 0, 0.4);
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .feature-text {
+            font-size: 0.95rem;
+            color: #b0b0b0;
+            font-weight: 500;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: linear-gradient(to top, rgba(15, 15, 30, 0.95), transparent);
+            color: #888;
+            text-align: center;
+            padding: 25px 20px 20px;
+            font-size: 0.9rem;
+            z-index: 10;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .card {
+                padding: 50px 35px;
+                max-width: 95%;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            }
+
+            .title {
+                font-size: 2.2rem;
+            }
+
+            .subtitle {
+                font-size: 1.1rem;
+                margin-bottom: 30px;
+            }
+
+            .description {
+                font-size: 0.95rem;
+                padding: 18px 20px;
+                margin-bottom: 35px;
+            }
+
+            .icon {
+                font-size: 3.5rem;
+            }
+
+            .button {
+                padding: 16px 40px;
+                font-size: 1rem;
+            }
+
+            .features {
+                gap: 15px;
+                margin-top: 40px;
+            }
+
+            footer {
+                position: relative;
+                bottom: auto;
+                background: rgba(15, 15, 30, 0.9);
+                margin-top: 60px;
+            }
+
+            body {
+                padding-bottom: 100px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 35px 20px;
+                border-radius: 18px;
+            }
+
+            .title {
+                font-size: 1.8rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+                margin-bottom: 25px;
+            }
+
+            .description {
+                font-size: 0.9rem;
+                padding: 15px 15px;
+                margin-bottom: 30px;
+            }
+
+            .icon {
+                font-size: 2.8rem;
+                margin-bottom: 15px;
+            }
+
+            .button {
+                padding: 14px 35px;
+                font-size: 0.9rem;
+                width: 100%;
+                letter-spacing: 0.5px;
+            }
+
+            .features {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+                margin-top: 35px;
+            }
+
+            .feature-icon {
+                font-size: 1.5rem;
+                margin-bottom: 5px;
+            }
+
+            .feature-text {
+                font-size: 0.85rem;
+            }
+
+            footer {
+                font-size: 0.8rem;
+                padding: 20px 10px 15px;
+            }
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="icon">�</div>
+            <h1 class="title">Car Price Prediction</h1>
+            <p class="subtitle">Predict your car resale value instantly using Machine Learning</p>
+            
+            <div class="description">
+                ℹ️ Enter your car details like company, model, year, fuel type and kilometers driven to estimate resale price.
+            </div>
+            
+            <a href="/home" class="button">Predict Price</a>
+            
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-text">Instant Results</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🎯</div>
+                    <div class="feature-text">Accurate Predictions</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🔒</div>
+                    <div class="feature-text">Secure & Private</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-text">ML Powered</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        Built with Flask, Machine Learning & Python
+    </footer>
+</body>
+</html>
